@@ -3,7 +3,7 @@ Package.describe({
 });
 
 Package.on_use(function(api, where) {
-    api.use(['deps', 'ui'], 'client');
+    api.use(['underscore', 'deps', 'ui'], 'client');
     api.add_files(['src/microphone.js'], 'client');
 
     if (api.export)
