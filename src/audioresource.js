@@ -26,6 +26,4 @@ AudioResource = function() {
     this.disable = function() {
         console.log("not Implemented")
     }
-
-
 }

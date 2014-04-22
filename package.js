@@ -4,7 +4,8 @@ Package.describe({
 
 Package.on_use(function(api, where) {
     api.use(['underscore', 'deps', 'ui'], 'client');
-    api.add_files(['src/microphone.js'], 'client');
+    // api.add_files(['src/microphone.js'], 'client');
+    api.add_files(['src/audioresource.js', 'src/html5audio.js', 'src/microphone.js', ], 'client');
 
     if (api.export)
         api.export('Microphone');

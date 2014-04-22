@@ -23,16 +23,17 @@ _.extend(Microphone.prototype, {
             alert('getUserMedia is not supported in this browser, dude.');
         }
 
+        
         if (navigator.getUserMedia){
-            var self = this;
-            navigator.getUserMedia({audio: true}, function(stream) {    
-                //create Source with the stream from getUserMedia
-                self.localStream = stream;
-            }, function(){console.log("Gotta handle recjection, dude.");}
-            ); // end of getUsermedia
+            //HTML5 getUserMedia
+            this.audioResource = new HTML5Audio;
         }else{
-            console.log("Gotta provide flash fallback, dude!");
+             //HTML5 Flash Fallback
+             
         }
+
+        //load audio resource
+        this.audioResource.load();
 
     },
     start: function() {
@@ -49,8 +50,7 @@ _.extend(Microphone.prototype, {
         // stops microphone input entirely
 
         if (navigator.getUserMedia){
-            this.localStream.stop();
-            console.log("Stream stopped, dude.");
+            this.audioResource.localStream.stop();
         }else{
             //stop flash mic
         }
