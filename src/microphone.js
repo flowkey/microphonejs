@@ -24,16 +24,25 @@ _.extend(Microphone.prototype, {
         }
 
         
-        if (navigator.getUserMedia){
+        // if (navigator.getUserMedia){
+        if (false){
             //HTML5 getUserMedia
             this.audioResource = new HTML5Audio;
         }else{
-             //HTML5 Flash Fallback
-             
+             // Flash Fallback
+             console.log("flash");
+             MicrophoneF.initialize();
+             MicrophoneF.onready(function() {
+                MicrophoneF.enable();
+                MicrophoneF.ondata(function(data) {
+                    console.log(data.length); // Typically 2048 bytes.
+                });
+            });
+
         }
 
         //load audio resource
-        this.audioResource.load();
+        // this.audioResource.load();
 
     },
     start: function() {
