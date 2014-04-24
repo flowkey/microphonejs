@@ -16,6 +16,7 @@ _.extend(HTML5Audio.prototype, {
 
         navigator.getUserMedia({audio: true}, function(stream) {    
             //create Source with the stream from getUserMedia
+            // self.audioContext = new AudioContext();
             self.localStream = stream;
         }, function(){
             console.log("Gotta handle recjection, dude.");
@@ -24,7 +25,7 @@ _.extend(HTML5Audio.prototype, {
 
     // returns Audio Buffer
     getBuffer: function() {
-
+        
     },
 
     // returns Status of Audioresource

@@ -42,7 +42,7 @@ _.extend(Microphone.prototype, {
         }
 
         //load audio resource
-        // this.audioResource.load();
+        this.audioResource.load();
 
     },
     start: function() {
