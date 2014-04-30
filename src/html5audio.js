@@ -1,6 +1,6 @@
 HTML5Audio = function() {
     //special variables
-    this.audioContext;
+    this.audioContext;      
     this.localStream;
 }
 
@@ -43,4 +43,4 @@ _.extend(HTML5Audio.prototype, {
     disable: function() {
 
     }
-})
+})      

@@ -29,16 +29,8 @@ _.extend(Microphone.prototype, {
             //HTML5 getUserMedia
             this.audioResource = new HTML5Audio;
         }else{
-             // Flash Fallback
-             console.log("flash");
-             MicrophoneF.initialize();
-             MicrophoneF.onready(function() {
-                MicrophoneF.enable();
-                MicrophoneF.ondata(function(data) {
-                    console.log(data.length); // Typically 2048 bytes.
-                });
-            });
 
+            this.audioResource = new FlashAudio;
         }
 
         //load audio resource
@@ -47,6 +39,7 @@ _.extend(Microphone.prototype, {
     },
     start: function() {
         // starts micphone routine
+        this.audioResource.start();
     },
 
     status: function() {
