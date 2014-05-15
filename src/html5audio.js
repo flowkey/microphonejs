@@ -1,7 +1,8 @@
-HTML5Audio = function() {
+HTML5Audio = function(callback) {
     //special variables
-    this.audioContext;      
     this.localStream;
+
+    this.load(callback);
 }
 
 HTML5Audio.prototype = new AudioResource;
@@ -11,13 +12,14 @@ HTML5Audio.prototype = new AudioResource;
 _.extend(HTML5Audio.prototype, {
     constructor: HTML5Audio,
 
-    load: function() {
+    load: function(callback) {
         var self = this;
 
         navigator.getUserMedia({audio: true}, function(stream) {    
             //create Source with the stream from getUserMedia
-            // self.audioContext = new AudioContext();
             self.localStream = stream;
+            console.log(self);
+            callback();
         }, function(){
             console.log("Gotta handle recjection, dude.");
         }); // end of getUsermedia
@@ -25,7 +27,7 @@ _.extend(HTML5Audio.prototype, {
 
     // returns Audio Buffer
     getBuffer: function() {
-        
+        return localStream;
     },
 
     // returns Status of Audioresource
@@ -41,6 +43,6 @@ _.extend(HTML5Audio.prototype, {
 
     // disable microphone entirely??? 
     disable: function() {
-
+        this.localStream.stop();
     }
 })      

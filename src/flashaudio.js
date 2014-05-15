@@ -1,6 +1,7 @@
 FlashAudio = function() {
     //special variables
-    
+    this.bufferLength = 2048;
+    this.audioBuffer = new Array(this.bufferLength);  //ToDo: hard coded length is bad
 
 }
 
@@ -14,33 +15,25 @@ _.extend(FlashAudio.prototype, {
     load: function() {
         var self = this;
 
+        // init flash lib / wrapper
         MicrophoneF.initialize();
+
         MicrophoneF.onready(function() {
-            MicrophoneF.enable();
-            MicrophoneF.ondata(function(data) {
-                console.log(data.length); // Typically 2048 bytes.
-            });
+
+            //enable microphone
+            setTimeout(MicrophoneF.enable, 500);
+
+            //define onData event
+            self.unmute();            
+
         });
+
 
     },
 
-/*    function setupFlashSource(initFollower){
-        // init flash lib / wrapper
-        MicrophoneF.initialize();
-        //init audioSource as BufferSource
-        audioSource = audioContext.createBufferSource();
-        //init Buffer (gets filled on the MicrophoneF.ondata event)
-        audioSource.buffer = audioContext.createBuffer(1,blocklength,audioContext.sampleRate);
-        //little trick, that needs to be done: set audioSource on loop, so it is played permanently (with different buffer content of course)
-        audioSource.loop = true;
-        //init follower and setup all the other audio nodes
-        initFollower();
-        setupAudioNodes();
-    }*/
-
     // returns Audio Buffer
     getBuffer: function() {
-        
+        return this.audioBuffer;
     },
 
     // returns Status of Audioresource
@@ -51,11 +44,36 @@ _.extend(FlashAudio.prototype, {
 
     // mutes the Audio Input
     mute: function() {
+        var self = this;
+        //define ondata handler
+        MicrophoneF.ondata(function(data) {
+            // set all values in buffer to zero
+            for (var i = self.bufferLength - 1; i >= 0; i--) {
+                self.audioBuffer[i] = 0;
+            };
+            console.log(self.audioBuffer[Math.round(self.bufferLength/2)]);
 
+        });
+    },
+
+    //unmutes the Audio Input
+    unmute: function() {
+        var self = this;
+        //define ondata handler
+        MicrophoneF.ondata(function(data) {
+            // convert data
+            for (var i = self.bufferLength - 1; i >= 0; i--) {
+                var floaty = (data.charCodeAt(i) - (27647)) / (27647);
+                if (isNaN(floaty)) floaty = 0;
+                self.audioBuffer[i] = floaty;
+            };
+            console.log(self.audioBuffer[500]);
+
+        });
     },
 
     // disable microphone entirely??? 
     disable: function() {
-
+        MicrophoneF.disable();
     }
 })      

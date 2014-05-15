@@ -3,7 +3,7 @@ Package.describe({
 });
 
 Package.on_use(function(api, where) {
-    api.use(['underscore', 'deps', 'ui'], 'client');
+    api.use(['underscore', 'deps', 'ui', 'MicrophoneFlash'], 'client');
     api.add_files(['src/audioresource.js', 'src/html5audio.js', 'src/flashaudio.js', 'src/microphone.js', ], 'client');
 
     if (api.export)

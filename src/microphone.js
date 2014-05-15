@@ -1,18 +1,19 @@
 // this package should handle Microphone access to Users Mic.
 
-Microphone = function(obj) {
+Microphone = function(audioCtx) {
+
     this.volumeFunction;
     this.getUserMediaAnimation = true; // should decide if there is an animation under the getUserMedia "Accept" button
     this.audioResource;
+
+    this.load(audioCtx);
 };
 
 
 // Control Interface
 _.extend(Microphone.prototype, {
-    load: function(options) {
-        // startes microphone access - 
-        // e.g. startes getUserMedia dialog
-        // options for flash fallback or other input
+    load: function(audioCtx) {
+
 
         try{
             navigator.getUserMedia =    navigator.getUserMedia  || 
@@ -24,22 +25,27 @@ _.extend(Microphone.prototype, {
         }
 
         
-        // if (navigator.getUserMedia){
-        if (false){
-            //HTML5 getUserMedia
-            this.audioResource = new HTML5Audio;
-        }else{
+        if (navigator.getUserMedia){
+        // if (false) {
 
+            var self = this;
+            var myCallback = function() {
+                var sourcenode = audioCtx.createMediaStreamSource(self.audioResource.localStream);
+                console.log(sourcenode);
+            }
+            this.audioResource = new HTML5Audio(myCallback);      
+                
+        }else{
             this.audioResource = new FlashAudio;
+            
         }
 
-        //load audio resource
-        this.audioResource.load();
+        setTimeout(function() {
 
-    },
-    start: function() {
-        // starts micphone routine
-        this.audioResource.start();
+        }, 3000);
+
+        
+
     },
 
     status: function() {
@@ -51,11 +57,7 @@ _.extend(Microphone.prototype, {
     stop: function() {
         // stops microphone input entirely
 
-        if (navigator.getUserMedia){
-            this.audioResource.localStream.stop();
-        }else{
-            //stop flash mic
-        }
+        this.audioResource.disable();
     },
 
     pause: function() {
