@@ -1,18 +1,19 @@
 // this package should handle Microphone access to Users Mic.
 
-Microphone = function(audioCtx) {
+Microphone = function(audioCtx, userCallback) {
 
+    this.webAudioNode;
     this.volumeFunction;
     this.getUserMediaAnimation = true; // should decide if there is an animation under the getUserMedia "Accept" button
     this.audioResource;
 
-    this.load(audioCtx);
+    this.load(audioCtx, userCallback);
 };
 
 
 // Control Interface
 _.extend(Microphone.prototype, {
-    load: function(audioCtx) {
+    load: function(audioCtx, userCallback) {
 
 
         try{
@@ -29,15 +30,28 @@ _.extend(Microphone.prototype, {
         // if (false) {
 
             var self = this;
-            var myCallback = function() {
-                var sourcenode = audioCtx.createMediaStreamSource(self.audioResource.localStream);
-                console.log(sourcenode);
+            var createWebAudioNode = function() {
+                self.webAudioNode = audioCtx.createMediaStreamSource(self.audioResource.audioBuffer);
             }
-            this.audioResource = new HTML5Audio(myCallback);      
+            this.audioResource = new HTML5Audio(createWebAudioNode, userCallback);      
                 
         }else{
-            this.audioResource = new FlashAudio;
-            
+
+            var self = this;
+            var createWebAudioNode = function() {
+
+                self.webAudioNode = audioCtx.createBufferSource();
+
+                //init Buffer (gets filled on the MicrophoneF.ondata event)
+                self.webAudioNode.buffer = self.audioResource.audioBuffer;
+
+                //little trick, that needs to be done: set self.webAudioNode on loop, so it is played permanently (with different buffer content of course)
+                self.webAudioNode.loop = true;
+
+                //start "playing" the bufferSource
+                self.webAudioNode.start(0);
+            }
+            this.audioResource = new FlashAudio(createWebAudioNode, userCallback, audioCtx);
         }
 
         setTimeout(function() {
