@@ -1,8 +1,9 @@
-HTML5Audio = function(crtWbAdNd, usrCllbck) {
-    
-    this.audioBuffer;
+HTML5Audio = function(createWebAudioNode, onSuccess, onReject) {
 
-    this.load(crtWbAdNd, usrCllbck);
+    this.audioBuffer;
+    this.status = "no status";
+
+    this.load(createWebAudioNode, onSuccess, onReject);
 }
 
 HTML5Audio.prototype = new AudioResource;
@@ -12,37 +13,41 @@ HTML5Audio.prototype = new AudioResource;
 _.extend(HTML5Audio.prototype, {
     constructor: HTML5Audio,
 
-    load: function(crtWbAdNd, usrCllbck) {
+    load: function(createWebAudioNode, onSuccess, onReject) {
+
         var self = this;
 
         navigator.getUserMedia({audio: true}, function(stream) {    
             //create Source with the stream from getUserMedia
             self.audioBuffer = stream;
             console.log(self);
-            crtWbAdNd();
-            usrCllbck();
-        }, function(){
-            console.log("Gotta handle recjection, dude.");
-        }); // end of getUsermedia
+            createWebAudioNode();
+            onSuccess();
+        }, onReject); // end of getUsermedia
     },
 
     // returns Audio Buffer
     getBuffer: function() {
-        return audioBuffer;
+        return this.audioBuffer;
     },
 
     // returns Status of Audioresource
     // unloaded - loading - ready - error - noSound 
     getStatus: function() {
-
+        return this.status;
     },
 
     // mutes the Audio Input
     mute: function() {
-
+        this.audioBuffer.getAudioTracks()[0].enabled = false;
     },
 
-    // disable microphone entirely??? 
+    // unmutes the Audio Input
+    unmute: function() {
+        this.audioBuffer.getAudioTracks()[0].enabled = true;
+    },
+
+    // disable microphone entirely
     disable: function() {
         this.audioBuffer.stop();
     }
