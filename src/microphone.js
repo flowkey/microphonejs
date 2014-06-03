@@ -2,7 +2,6 @@
 
 Microphone = function(options) {
 
-    this.webAudioNode;
     this.volumeFunction;
     this.getUserMediaAnimation = true; // should decide if there is an animation under the getUserMedia "Accept" button
     this.audioResource;
@@ -15,18 +14,17 @@ Microphone = function(options) {
 _.extend(Microphone.prototype, {
     load: function(options) {
         var self = this;
-        var audioCtx = options.audioCtx;
+        var audioCtx = options.audioContext;
         var onSuccess = options.onSuccess;
         var onReject = options.onReject;
         var flash = options.flash;
 
         if (!flash) {
-            this.audioResource = new HTML5Audio(onSuccess, onReject, audioCtx);
+            this.audioResource = new HTML5Audio(onSuccess, onReject, audioCtx, self);
         } else {
-            this.audioResource = new FlashAudio(onSuccess, onReject, audioCtx);
+            this.audioResource = new FlashAudio(onSuccess, onReject, audioCtx, self);
         }
 
-        this.webAudioNode = audioresource.webAudioNode;
 
     },
 

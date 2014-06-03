@@ -1,24 +1,17 @@
-HTML5Audio = function(onSuccess, onReject, audioCtx) {
+HTML5Audio = function(onSuccess, onReject, audioCtx, microphone) {
     var self = this;
     this.audioBuffer;
+    this.microphone = microphone;
     this.status = "no status";
-    this.load(createWebAudioNode, onSuccess, onReject);
+    this.load(onSuccess, onReject);
     this.webAudioNode;
 
     //callback function to be executed when Microphone is accepted
     this.createWebAudioNode = function() {
         // create media stream source node with audioContext
-        self.webAudioNode = audioCtx.createMediaStreamSource(self.audioBuffer);
+        microphone.webAudioNode = self.webAudioNode = audioCtx.createMediaStreamSource(self.audioBuffer);
     }
 
-    try {
-        navigator.getUserMedia = navigator.getUserMedia ||
-            navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia ||
-            navigator.msGetUserMedia;
-    } catch (e) {
-        alert('getUserMedia is not supported in this browser, dude.');
-    }
 }
 
 HTML5Audio.prototype = new AudioResource;
@@ -28,9 +21,20 @@ HTML5Audio.prototype = new AudioResource;
 _.extend(HTML5Audio.prototype, {
     constructor: HTML5Audio,
 
-    load: function(createWebAudioNode, onSuccess, onReject) {
+    load: function(onSuccess, onReject) {
 
         var self = this;
+
+
+        try {
+            navigator.getUserMedia = navigator.getUserMedia ||
+                navigator.webkitGetUserMedia ||
+                navigator.mozGetUserMedia ||
+                navigator.msGetUserMedia;
+        } catch (e) {
+            alert('getUserMedia is not supported in this browser, dude.');
+        }
+
 
         navigator.getUserMedia({
             audio: true
@@ -38,7 +42,7 @@ _.extend(HTML5Audio.prototype, {
             //create Source with the stream from getUserMedia
             self.audioBuffer = stream;
             console.log(self);
-            createWebAudioNode();
+            self.createWebAudioNode();
             onSuccess();
         }, onReject); // end of getUsermedia
     },

@@ -1,18 +1,19 @@
-FlashAudio = function(createNode, onSuccess, onReject, audioCtx) {
+FlashAudio = function(createNode, onSuccess, onReject, audioCtx, microphone) {
     //special variables
     self = this;
+    this.microphone = microphone;
     this.bufferLength = 2048;
     this.conversionNumber = 27647; //mysterious conversion number
     this.execCallbacks = true;
     this.status = "no status";
     this.audioBuffer = audioCtx.createBuffer(1, this.bufferLength, audioCtx.sampleRate);
-    this.webAudioNode; 
+    this.webAudioNode;
 
 
     //callback function to be executed when Microphone is accepted
     this.createWebAudioNode = function() {
         // create buffer source node with audioContext
-        self.webAudioNode = audioCtx.createBufferSource();
+        self.webAudioNode = microphone.webAudioNode = audioCtx.createBufferSource();
 
         //init Buffer (gets filled on the MicrophoneF.ondata event)
         self.webAudioNode.buffer = self.audioBuffer;
