@@ -20,12 +20,15 @@ AudioResource = function() {
     // mutes the Audio Input
     this.mute = function() {
         console.log("not Implemented")
+    }    
+
+    // unmutes the Audio Input
+    this.unmute = function() {
+        console.log("not Implemented")
     }
 
     // disable microphone entirely??? 
     this.disable = function() {
         console.log("not Implemented")
     }
-
-
 }
