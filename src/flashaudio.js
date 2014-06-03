@@ -1,10 +1,28 @@
 FlashAudio = function(createNode, onSuccess, onReject, audioCtx) {
     //special variables
+    self = this;
     this.bufferLength = 2048;
-    this.conversionNumber = 27647;  //mysterious conversion number
+    this.conversionNumber = 27647; //mysterious conversion number
     this.execCallbacks = true;
     this.status = "no status";
     this.audioBuffer = audioCtx.createBuffer(1, this.bufferLength, audioCtx.sampleRate);
+    this.webAudioNode; 
+
+
+    //callback function to be executed when Microphone is accepted
+    this.createWebAudioNode = function() {
+        // create buffer source node with audioContext
+        self.webAudioNode = audioCtx.createBufferSource();
+
+        //init Buffer (gets filled on the MicrophoneF.ondata event)
+        self.webAudioNode.buffer = self.audioBuffer;
+
+        //little trick, that needs to be done: set self.webAudioNode on loop, so it is played permanently (with different buffer content of course)
+        self.webAudioNode.loop = true;
+
+        //start "playing" the bufferSource
+        self.webAudioNode.start(0);
+    }
 
     this.load(createNode, onSuccess, onReject);
 }
@@ -16,7 +34,6 @@ _.extend(FlashAudio.prototype, {
     constructor: FlashAudio,
 
     load: function(createNode, onSuccess, onReject) {
-
         var self = this;
 
         // init flash lib / wrapper
@@ -38,13 +55,13 @@ _.extend(FlashAudio.prototype, {
                 };
 
                 //execute callbacks, which were passed
-                if (self.execCallbacks){
+                if (self.execCallbacks) {
                     createNode();
                     onSuccess();
 
                     self.execCallbacks = false;
                 }
-            });         
+            });
 
         });
 
@@ -91,4 +108,4 @@ _.extend(FlashAudio.prototype, {
     disable: function() {
         MicrophoneF.disable();
     }
-})      
+})

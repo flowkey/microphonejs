@@ -1,9 +1,24 @@
-HTML5Audio = function(createWebAudioNode, onSuccess, onReject) {
-
+HTML5Audio = function(onSuccess, onReject, audioCtx) {
+    var self = this;
     this.audioBuffer;
     this.status = "no status";
-
     this.load(createWebAudioNode, onSuccess, onReject);
+    this.webAudioNode;
+
+    //callback function to be executed when Microphone is accepted
+    this.createWebAudioNode = function() {
+        // create media stream source node with audioContext
+        self.webAudioNode = audioCtx.createMediaStreamSource(self.audioBuffer);
+    }
+
+    try {
+        navigator.getUserMedia = navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia;
+    } catch (e) {
+        alert('getUserMedia is not supported in this browser, dude.');
+    }
 }
 
 HTML5Audio.prototype = new AudioResource;
@@ -17,7 +32,9 @@ _.extend(HTML5Audio.prototype, {
 
         var self = this;
 
-        navigator.getUserMedia({audio: true}, function(stream) {    
+        navigator.getUserMedia({
+            audio: true
+        }, function(stream) {
             //create Source with the stream from getUserMedia
             self.audioBuffer = stream;
             console.log(self);
@@ -51,4 +68,4 @@ _.extend(HTML5Audio.prototype, {
     disable: function() {
         this.audioBuffer.stop();
     }
-})      
+})

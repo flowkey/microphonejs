@@ -1,65 +1,32 @@
 // this package should handle Microphone access to Users Mic.
 
-Microphone = function(audioCtx, onSuccess, onReject) {
+Microphone = function(options) {
 
     this.webAudioNode;
     this.volumeFunction;
     this.getUserMediaAnimation = true; // should decide if there is an animation under the getUserMedia "Accept" button
     this.audioResource;
 
-    this.load(audioCtx, onSuccess, onReject);
+    this.load(options);
 };
 
 
 // Control Interface
 _.extend(Microphone.prototype, {
-    load: function(audioCtx, onSuccess, onReject) {
+    load: function(options) {
+        var self = this;
+        var audioCtx = options.audioCtx;
+        var onSuccess = options.onSuccess;
+        var onReject = options.onReject;
+        var flash = options.flash;
 
-
-        try{
-            navigator.getUserMedia =    navigator.getUserMedia  || 
-                                        navigator.webkitGetUserMedia||
-                                        navigator.mozGetUserMedia   ||
-                                        navigator.msGetUserMedia;
-        }catch(e){
-            alert('getUserMedia is not supported in this browser, dude.');
-        }
-    
-
-        // if (false) {
-        if (navigator.getUserMedia) {
-
-            var self = this;
-
-            //callback function to be executed when Microphone is accepted
-            var createWebAudioNode = function() {
-                // create media stream source node with audioContext
-                self.webAudioNode = audioCtx.createMediaStreamSource(self.audioResource.audioBuffer);
-            }
-
-            // create getUserMedia audioResource
-            this.audioResource = new HTML5Audio(createWebAudioNode, onSuccess, onReject);      
-                
+        if (!flash) {
+            this.audioResource = new HTML5Audio(onSuccess, onReject, audioCtx);
         } else {
-
-            var self = this;
-
-            //callback function to be executed when Microphone is accepted
-            var createWebAudioNode = function() {
-                // create buffer source node with audioContext
-                self.webAudioNode = audioCtx.createBufferSource();
-                //init Buffer (gets filled on the MicrophoneF.ondata event)
-                self.webAudioNode.buffer = self.audioResource.audioBuffer;
-                //little trick, that needs to be done: set self.webAudioNode on loop, so it is played permanently (with different buffer content of course)
-                self.webAudioNode.loop = true;
-                //start "playing" the bufferSource
-                self.webAudioNode.start(0);
-            }
-            // create flash audio resource
-            this.audioResource = new FlashAudio(createWebAudioNode, onSuccess, onReject, audioCtx);
+            this.audioResource = new FlashAudio(onSuccess, onReject, audioCtx);
         }
 
-        
+        this.webAudioNode = audioresource.webAudioNode;
 
     },
 
