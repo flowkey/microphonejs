@@ -11,7 +11,11 @@ or Flash and use it with the web audio api.
 var audioContext = new AudioContext();
 
 //to access the microphone, pass the audio context and your callbacks functions
-var mic = new Microphone(audioContext, onready, onreject);
+var mic = new Microphone({
+    audioContext: audioContext, 
+    onSuccess: onready, 
+    onReject: onreject
+});
 
 //define your onready callback
 var onready = function (){
