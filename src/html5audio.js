@@ -41,7 +41,6 @@ _.extend(HTML5Audio.prototype, {
         }, function(stream) {
             //create Source with the stream from getUserMedia
             self.audioBuffer = stream;
-            console.log(self);
             self.createWebAudioNode();
             onSuccess();
         }, onReject); // end of getUsermedia
