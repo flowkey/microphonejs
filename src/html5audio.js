@@ -4,12 +4,14 @@ HTML5Audio = function(onSuccess, onReject, audioCtx, microphone) {
     this.microphone = microphone;
     this.status = "no status";
     this.load(onSuccess, onReject);
-    this.webAudioNode;
+    this.sourceNode;
 
     //callback function to be executed when Microphone is accepted
-    this.createWebAudioNode = function() {
+    this.createSourceNode = function() {
         // create media stream source node with audioContext
-        microphone.webAudioNode = self.webAudioNode = audioCtx.createMediaStreamSource(self.audioBuffer);
+        microphone.sourceNode = self.sourceNode = audioCtx.createMediaStreamSource(self.audioBuffer);
+
+        self.sourceNode.connect(microphone.webAudioNode);
     }
 
 }
@@ -42,7 +44,7 @@ _.extend(HTML5Audio.prototype, {
             //create Source with the stream from getUserMedia
             self.audioBuffer = stream;
             console.log(self);
-            self.createWebAudioNode();
+            self.createSourceNode();
             onSuccess();
         }, onReject); // end of getUsermedia
     },
