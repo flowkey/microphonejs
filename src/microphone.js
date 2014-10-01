@@ -2,26 +2,20 @@
 
 Microphone = function(options) {
 
-    this.animation = options.animation || function(currentFrame) {
-        var mean = 0;
+    this.processAudioData = options.processAudioData || function(currentFrame) {
         var max = 0;
 
         //calculate mean and max of currentFrame
         for (var i = currentFrame.length - 1; i >= 0; i--) {
-            mean += currentFrame[i];
             max = currentFrame[i] > max ? currentFrame[i] : max;
         };
-        mean = mean / currentFrame.length;
 
         //calculate decibel value
-        var db = 20 * Math.log(Math.max(max, Math.pow(10, refLevel / 20))) / Math.LN10;
-
-        // gain.value = Math.pow(10, (decibel_level/10));
+        var db = 20 * Math.log(Math.max(max, Math.pow(10, -72 / 20))) / Math.LN10;
 
         //draw into interface
-        volume.style.height = (h - h * (db / refLevel)) + 'px';
+        volume.style.height = (15 - 15 * (db / -72)) + 'px';
     }
-
 
     this.audioResource;
     this.webAudioNode;
@@ -39,30 +33,18 @@ _.extend(Microphone.prototype, {
         var onSuccess = options.onSuccess;
         var onReject = options.onReject;
 
-        //create webAudioNode which executes animation 
+        //create webAudioNode which executes processAudioData 
         self.webAudioNode = audioCtx.createScriptProcessor(1024, 1, 1);
         self.webAudioNode.onaudioprocess = function(e) {
 
-            var nodeInput = [];
-            var nodeOutput = [];
+            var nodeInput = e.inputBuffer.getChannelData(0);
+            var nodeOutput = e.outputBuffer.getChannelData(0);
 
-            // loop all input Buffer
-            for (var i = 0; i < e.inputBuffer.numberOfChannels; i++) {
-                nodeInput.push(e.inputBuffer.getChannelData(i));
-            }
-
-            // loop all output Buffer
-            for (var i = 0; i < e.outputBuffer.numberOfChannels; i++) {
-                nodeOutput.push(e.outputBuffer.getChannelData(i));
-            }
-
-            //execute animation function (just for the first (left) channel right now)
-            self.animation(e.inputBuffer.getChannelData(0));
+            //execute processAudioData function (just for the first (left) channel right now)
+            self.processAudioData(nodeInput);
 
             //set node output
-            for (var i = e.outputBuffer.numberOfChannels - 1; i >= 0; i--) {
-                nodeOutput[i].set(nodeInput[i]);
-            }
+            nodeOutput.set(nodeInput);
         }
 
         /*
