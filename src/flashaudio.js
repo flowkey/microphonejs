@@ -41,8 +41,6 @@ _.extend(FlashAudio.prototype, {
     load: function(onSuccess, onReject) {
         var self = this;
 
-        console.log("FlashAudio load LOL");
-
         // init flash lib / wrapper
         MicrophoneF.initialize();
 

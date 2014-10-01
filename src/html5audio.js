@@ -34,7 +34,7 @@ _.extend(HTML5Audio.prototype, {
                 navigator.mozGetUserMedia ||
                 navigator.msGetUserMedia;
         } catch (e) {
-            alert('getUserMedia is not supported in this browser, dude.');
+            alert('getUserMedia is not supported in this browser.');
         }
 
 
@@ -43,7 +43,7 @@ _.extend(HTML5Audio.prototype, {
         }, function(stream) {
             //create Source with the stream from getUserMedia
             self.audioBuffer = stream;
-            console.log(self);
+            // console.log(self);
             self.createSourceNode();
             onSuccess();
         }, onReject); // end of getUsermedia
