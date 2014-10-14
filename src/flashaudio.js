@@ -7,26 +7,25 @@ FlashAudio = function(onSuccess, onReject, audioCtx, microphone) {
     this.execCallbacks = true;
     this.status = "no status";
     this.audioBuffer = audioCtx.createBuffer(1, this.bufferLength, audioCtx.sampleRate);
-    this.sourceNode;
 
 
     //callback function to be executed when Microphone is accepted
     this.createSourceNode = function() {
 
         // create buffer source node with audioContext
-        self.sourceNode = microphone.sourceNode = audioCtx.createBufferSource();
+        microphone.sourceNode = audioCtx.createBufferSource();
 
         //init Buffer (gets filled on the MicrophoneF.ondata event)
-        self.sourceNode.buffer = self.audioBuffer;
+        microphone.sourceNode.buffer = self.audioBuffer;
 
         //little trick, that needs to be done: set self.sourceNode on loop, so it is played permanently (with different buffer content of course)
-        self.sourceNode.loop = true;
+        microphone.sourceNode.loop = true;
 
         //start "playing" the bufferSource
-        self.sourceNode.start(0);
+        microphone.sourceNode.start(0);
 
         // connect sourceNode to webAudioNode
-        self.sourceNode.connect(microphone.webAudioNode);
+        microphone.sourceNode.connect(microphone.webAudioNode);
     }
 
     this.load(onSuccess, onReject);

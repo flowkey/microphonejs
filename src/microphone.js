@@ -4,10 +4,9 @@ Microphone = function(options) {
 
     this.processAudioData = options.processAudioData;
 
-    this.noSourceHandler = options.noSourceHandler || function() {
-        console.warn("No getUserMedia and no Flash, switch to another browser with getUserMedia support or install Flash.");
-    }
+    this.noSourceEvent = flow.events.create("noSource");
 
+    this.sourceNode;
     this.audioResource;
     this.webAudioNode;
 
@@ -58,7 +57,11 @@ _.extend(Microphone.prototype, {
                 this.audioResource = new FlashAudio(onSuccess, onReject, audioCtx, self);
 
             } else {
-                this.noSourceHandler();
+                // this.noSourceHandler();
+                self.noSourceEvent.data = {
+                    message: "no getUserMedia and no Flash installed"
+                };
+                flow.events.dispatchEvent(self.noSourceEvent);
             }
         }
     },

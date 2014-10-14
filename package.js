@@ -1,11 +1,11 @@
 Package.describe({
     summary: "Getting Microphone input from user",
-    version: "0.0.5",
+    version: "0.0.6",
   	git: "https://github.com/flowkey/microphonejs.git"
 });
 
 Package.on_use(function(api, where) {
-    api.use(['underscore', 'deps', 'ui', 'flowkey:flashmic@0.1.0', 'flowkey:swfobject@1.0.0'], 'client');
+    api.use(['underscore', 'deps', 'ui', 'flow-core', 'flowkey:flashmic@0.1.0', 'flowkey:swfobject@1.0.0'], 'client');
     api.add_files(['src/audioresource.js', 'src/html5audio.js', 'src/flashaudio.js', 'src/microphone.js', ], 'client');
 
     if (api.export)
