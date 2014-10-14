@@ -15,7 +15,6 @@ var mic = new Microphone({
     audioContext: audioContext, 
     onSuccess: onready, 
     onReject: onreject,
-    noSourceHandler: noSourceHandler,
     processAudioData: processAudioData
 });
 
@@ -25,7 +24,11 @@ var mic = new Microphone({
 var onready = function (){
 
     //connect the mic via its webAudioNode to your web audio graph!
+    //webAudioNode provides processAudioData injection and noSignal check
     mic.webAudioNode.connect(myWebAudioNode);
+
+    //if processAudioData and/or noSignal check is not needed you can connect to sourceNode directly as well
+    mic.sourceNode.connect(myWebAudioNode);
 
     myWebAudioNode.connect(audioContext.destination);
     console.log("mic access permitted");
@@ -36,15 +39,16 @@ var onreject = function (){
     console.log("mic access rejected");
 }
 
-//define your noSourceHandler (if theres no getUserMedia and no Flash)
-var noSourceHandler = function (){
-    console.log("No getUserMedia and no Flash available");
-}
+//define your listener for the noSignal event (e.g. if microphone input level is zero in system settings)
+document.addEventListener('noSignal', function (e) { console.log(e) }, false);
+
+//define your listener for the noSource event (if theres no getUserMedia and no Flash)
+document.addEventListener('noSource', function (e) { console.log(e) }, false);
 
 
 // define your processAudioData function to process raw audio data coming from microphone
 // (e.g. for visualization, audio analysis and whatsoever)
-var noSourceHandler = function (currentAudioFrame){
+var processAudioData = function (currentAudioFrame){
     doSomethingFancyWith(currentAudioFrame);
 }
 

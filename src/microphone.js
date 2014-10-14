@@ -6,6 +6,9 @@ Microphone = function(options) {
 
     this.noSourceEvent = flow.events.create("noSource");
 
+    this.micCheckDuration = 25;
+    this.micCheckCounter = 0;
+
     this.sourceNode;
     this.audioResource;
     this.webAudioNode;
@@ -32,11 +35,16 @@ _.extend(Microphone.prototype, {
             var nodeInput = e.inputBuffer.getChannelData(0);
             var nodeOutput = e.outputBuffer.getChannelData(0);
 
+            //check if there is any signal during the first blocks
+            if (self.micCheckCounter < self.micCheckDuration) {
+                self.micCheck(nodeInput);
+            }
+
             //execute processAudioData function (just for the first (left) channel right now)
-            if (self.processAudioData){
+            if (self.processAudioData) {
                 self.processAudioData(nodeInput);
             }
-            
+
             //set node output
             nodeOutput.set(nodeInput);
         }
@@ -57,11 +65,26 @@ _.extend(Microphone.prototype, {
                 this.audioResource = new FlashAudio(onSuccess, onReject, audioCtx, self);
 
             } else {
-                // this.noSourceHandler();
-                self.noSourceEvent.data = {
-                    message: "no getUserMedia and no Flash installed"
-                };
-                flow.events.dispatchEvent(self.noSourceEvent);
+                var noSource = new CustomEvent("noSource", {
+                    message: "No getUserMedia and no Flash detected, please switch to a REAL browser or install Flash."
+                });
+                document.dispatchEvent(noSource);
+            }
+        }
+    },
+
+    micCheck: function(audioFrame) {
+        this.micCheckCounter++;
+        if (this.micCheckCounter == this.micCheckDuration) {
+            var audioFrameSum = 0;
+            for (var i = audioFrame.length - 1; i >= 0; i--) {
+                audioFrameSum += audioFrame[i];
+            };
+            if (audioFrameSum == 0) {
+                var noSignal = new CustomEvent("noSignal", {
+                    message: "No signal from microphone detected, check your operating systems audio settings."
+                });
+                document.dispatchEvent(noSignal);
             }
         }
     },
