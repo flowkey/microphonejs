@@ -3,7 +3,7 @@
     "description": "Html5 mic with flash fallback",
     "homepage": "",
     "author": "Your Name <your@email> (http://yoursite)",
-    "version": "0.0.6",
+    "version": "0.0.9",
     "git": "",
     "packages": {
         "MicrophoneFlash": {
