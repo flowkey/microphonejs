@@ -1,40 +1,12 @@
 {
   "dependencies": [
     [
-      "application-configuration",
-      "1.0.2"
-    ],
-    [
       "base64",
-      "1.0.0"
-    ],
-    [
-      "binary-heap",
       "1.0.0"
     ],
     [
       "blaze",
       "2.0.1"
-    ],
-    [
-      "blaze-tools",
-      "1.0.0"
-    ],
-    [
-      "boilerplate-generator",
-      "1.0.0"
-    ],
-    [
-      "callback-hook",
-      "1.0.0"
-    ],
-    [
-      "check",
-      "1.0.1"
-    ],
-    [
-      "ddp",
-      "1.0.9"
     ],
     [
       "deps",
@@ -45,28 +17,16 @@
       "1.0.3"
     ],
     [
-      "flow-core",
-      "0.0.0"
-    ],
-    [
       "flowkey:flashmic",
-      "0.1.0"
+      "0.1.1"
     ],
     [
       "flowkey:swfobject",
       "1.0.0"
     ],
     [
-      "follower-livedata",
-      "1.0.1"
-    ],
-    [
       "geojson-utils",
       "1.0.0"
-    ],
-    [
-      "html-tools",
-      "1.0.1"
     ],
     [
       "htmljs",
@@ -89,36 +49,12 @@
       "1.0.9"
     ],
     [
-      "logging",
-      "1.0.3"
-    ],
-    [
       "meteor",
       "1.1.1"
     ],
     [
-      "minifiers",
-      "1.1.0"
-    ],
-    [
       "minimongo",
       "1.0.3"
-    ],
-    [
-      "mongo",
-      "1.0.6"
-    ],
-    [
-      "mrt:moment",
-      "2.8.1"
-    ],
-    [
-      "mrt:underscore-string-latest",
-      "2.3.3"
-    ],
-    [
-      "nerdmed:zevent",
-      "1.0.0"
     ],
     [
       "observe-sequence",
@@ -137,26 +73,6 @@
       "1.0.2"
     ],
     [
-      "retry",
-      "1.0.0"
-    ],
-    [
-      "routepolicy",
-      "1.0.1"
-    ],
-    [
-      "spacebars",
-      "1.0.2"
-    ],
-    [
-      "spacebars-compiler",
-      "1.0.2"
-    ],
-    [
-      "templating",
-      "1.0.7"
-    ],
-    [
       "tracker",
       "1.0.2"
     ],
@@ -166,14 +82,6 @@
     ],
     [
       "underscore",
-      "1.0.0"
-    ],
-    [
-      "webapp",
-      "1.1.2"
-    ],
-    [
-      "webapp-hashing",
       "1.0.0"
     ]
   ],

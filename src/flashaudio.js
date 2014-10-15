@@ -61,7 +61,13 @@ _.extend(FlashAudio.prototype, {
                 //execute callbacks, which were passed
                 if (self.execCallbacks) {
                     self.createSourceNode();
-                    onSuccess();
+
+                    try{
+                        onSuccess(); 
+                    }catch(e){
+                        console.log(e);
+                    }
+                    
 
                     self.execCallbacks = false;
                 }

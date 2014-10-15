@@ -2,12 +2,9 @@
 
 Microphone = function(options) {
 
-    this.processAudioData = options.processAudioData;
-
-    this.noSourceEvent = flow.events.create("noSource");
-
-    this.micCheckDuration = 25;
+    this.micCheckDuration = 10;
     this.micCheckCounter = 0;
+    this.audioFrameSum = 0;
 
     this.sourceNode;
     this.audioResource;
@@ -23,11 +20,17 @@ _.extend(Microphone.prototype, {
     load: function(options) {
         var self = this;
         var audioCtx = options.audioContext;
+
         var onSuccess = options.onSuccess;
         var onReject = options.onReject;
+        var onNoSource = options.onNoSource;
+        var onAudioData = options.onAudioData;
+
+        self.onNoSignal = options.onNoSignal;
 
         /*
-         * create webAudioNode which executes processAudioData
+         * create webAudioNode which executes onAudioData handler
+         * and does a micCheck, whichs calls noSignal handler if necessary
          */
         self.webAudioNode = audioCtx.createScriptProcessor(1024, 1, 1);
         self.webAudioNode.onaudioprocess = function(e) {
@@ -41,20 +44,23 @@ _.extend(Microphone.prototype, {
             }
 
             //execute processAudioData function (just for the first (left) channel right now)
-            if (self.processAudioData) {
-                self.processAudioData(nodeInput);
+            if (onAudioData) {
+                onAudioData(nodeInput);
             }
 
             //set node output
             nodeOutput.set(nodeInput);
         }
 
+
         /*
          * check for getUserMedia or flash
+         * call noSourceH handler if none of them exists
          */
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
         if (navigator.getUserMedia) {
+
             //create HTML5 getUserMedia Microphone Input
             this.audioResource = new HTML5Audio(onSuccess, onReject, audioCtx, self);
 
@@ -65,26 +71,31 @@ _.extend(Microphone.prototype, {
                 this.audioResource = new FlashAudio(onSuccess, onReject, audioCtx, self);
 
             } else {
-                var noSource = new CustomEvent("noSource", {
-                    message: "No getUserMedia and no Flash detected, please switch to a REAL browser or install Flash."
-                });
-                document.dispatchEvent(noSource);
+
+                try {
+                    onNoSource();
+                } catch (e) {
+                    console.log(e);
+                    console.warn("No getUserMedia and no Flash detected, please switch to a REAL browser or install Flash.");
+                }
             }
         }
     },
 
     micCheck: function(audioFrame) {
         this.micCheckCounter++;
+        for (var i = audioFrame.length - 1; i >= 0; i--) {
+            this.audioFrameSum += audioFrame[i];
+        };
         if (this.micCheckCounter == this.micCheckDuration) {
-            var audioFrameSum = 0;
-            for (var i = audioFrame.length - 1; i >= 0; i--) {
-                audioFrameSum += audioFrame[i];
-            };
-            if (audioFrameSum == 0) {
-                var noSignal = new CustomEvent("noSignal", {
-                    message: "No signal from microphone detected, check your operating systems audio settings."
-                });
-                document.dispatchEvent(noSignal);
+            if (this.audioFrameSum == 0) {
+                try {
+                    this.onNoSignal();
+                } catch (e) {
+                    console.log(e);
+                    console.warn("No signal from microphone detected, check your operating systems audio settings.");
+
+                }
             }
         }
     },
