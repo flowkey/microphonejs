@@ -1,4 +1,4 @@
-FlashAudio = function(createNode, onSuccess, onReject, audioCtx, microphone) {
+FlashAudio = function(onSuccess, onReject, audioCtx, microphone) {
     //special variables
     self = this;
     this.microphone = microphone;
@@ -7,25 +7,28 @@ FlashAudio = function(createNode, onSuccess, onReject, audioCtx, microphone) {
     this.execCallbacks = true;
     this.status = "no status";
     this.audioBuffer = audioCtx.createBuffer(1, this.bufferLength, audioCtx.sampleRate);
-    this.webAudioNode;
 
 
     //callback function to be executed when Microphone is accepted
-    this.createWebAudioNode = function() {
+    this.createSourceNode = function() {
+
         // create buffer source node with audioContext
-        self.webAudioNode = microphone.webAudioNode = audioCtx.createBufferSource();
+        microphone.sourceNode = audioCtx.createBufferSource();
 
         //init Buffer (gets filled on the MicrophoneF.ondata event)
-        self.webAudioNode.buffer = self.audioBuffer;
+        microphone.sourceNode.buffer = self.audioBuffer;
 
-        //little trick, that needs to be done: set self.webAudioNode on loop, so it is played permanently (with different buffer content of course)
-        self.webAudioNode.loop = true;
+        //little trick, that needs to be done: set self.sourceNode on loop, so it is played permanently (with different buffer content of course)
+        microphone.sourceNode.loop = true;
 
         //start "playing" the bufferSource
-        self.webAudioNode.start(0);
+        microphone.sourceNode.start(0);
+
+        // connect sourceNode to webAudioNode
+        microphone.sourceNode.connect(microphone.webAudioNode);
     }
 
-    this.load(createNode, onSuccess, onReject);
+    this.load(onSuccess, onReject);
 }
 
 FlashAudio.prototype = new AudioResource;
@@ -34,7 +37,7 @@ FlashAudio.prototype = new AudioResource;
 _.extend(FlashAudio.prototype, {
     constructor: FlashAudio,
 
-    load: function(createNode, onSuccess, onReject) {
+    load: function(onSuccess, onReject) {
         var self = this;
 
         // init flash lib / wrapper
@@ -57,8 +60,14 @@ _.extend(FlashAudio.prototype, {
 
                 //execute callbacks, which were passed
                 if (self.execCallbacks) {
-                    createNode();
-                    onSuccess();
+                    self.createSourceNode();
+
+                    try{
+                        onSuccess(); 
+                    }catch(e){
+                        console.log(e);
+                    }
+                    
 
                     self.execCallbacks = false;
                 }
