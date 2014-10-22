@@ -39,12 +39,12 @@ _.extend(FlashAudio.prototype, {
 
     load: function(onSuccess, onReject) {
         var self = this;
-
         // init flash lib / wrapper
+
         MicrophoneF.initialize();
 
         MicrophoneF.onready(function() {
-
+    
             //enable microphone
             setTimeout(MicrophoneF.enable, 500);
 
@@ -64,8 +64,11 @@ _.extend(FlashAudio.prototype, {
 
                     try{
                         onSuccess(); 
+                        jQuery("body").addClass("hide__microphoneFFlash__");
                     }catch(e){
-                        console.log(e);
+                        jQuery("body").addClass("hide__microphoneFFlash__");
+                        console.error(e);
+                        self.execCallbacks = false;
                     }
                     
 

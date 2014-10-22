@@ -10,7 +10,10 @@ Microphone = function(options) {
     this.audioResource;
     this.webAudioNode;
 
+    this.flash = options.flash !== undefined ? options.flash : true;
+
     this.load(options);
+   
 
 };
 
@@ -25,7 +28,7 @@ _.extend(Microphone.prototype, {
         var onReject = options.onReject;
         var onNoSource = options.onNoSource;
         var onAudioData = options.onAudioData;
-
+        var onFlashInit = options.onFlashInit;
         self.onNoSignal = options.onNoSignal;
 
         /*
@@ -63,15 +66,12 @@ _.extend(Microphone.prototype, {
 
             //create HTML5 getUserMedia Microphone Input
             this.audioResource = new HTML5Audio(onSuccess, onReject, audioCtx, self);
-
         } else {
-            if (this.thisBrowserHasFlash()) {
-
+            if ( self.flash && this.thisBrowserHasFlash()) {
                 //create Flash Microphone Input
                 this.audioResource = new FlashAudio(onSuccess, onReject, audioCtx, self);
-
+                if(onFlashInit) onFlashInit();
             } else {
-
                 try {
                     onNoSource();
                 } catch (e) {
