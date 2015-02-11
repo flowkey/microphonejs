@@ -67,6 +67,12 @@ _.extend(Microphone.prototype, {
             //create HTML5 getUserMedia Microphone Input
             this.audioResource = new HTML5Audio(onSuccess, onReject, audioCtx, self);
         } else {
+            
+            if (Meteor.isCordova && cordova && cordova.platformId === "ios") {
+                console.log("Using CordovaAudio mic source");
+                return this.audioResource = new CordovaAudio(onSuccess, onReject, audioCtx, self);
+            }
+
             if ( self.flash && this.thisBrowserHasFlash()) {
                 //create Flash Microphone Input
                 this.audioResource = new FlashAudio(onSuccess, onReject, audioCtx, self);
