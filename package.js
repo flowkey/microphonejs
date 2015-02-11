@@ -1,6 +1,7 @@
 Package.describe({
+    name: 'flowkey:microphone',
     summary: "Getting Microphone input from user",
-    version: "0.9.1",
+    version: "0.9.2",
   	git: "https://github.com/flowkey/microphonejs.git"
 });
 
