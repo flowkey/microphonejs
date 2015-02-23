@@ -63,14 +63,16 @@ _.extend(Microphone.prototype, {
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
         if (navigator.getUserMedia) {
-
+            console.log("[microphone.js] Using getUserMedia mic source");
             //create HTML5 getUserMedia Microphone Input
             this.audioResource = new HTML5Audio(onSuccess, onReject, audioCtx, self);
         } else {
             
             if (Meteor.isCordova && cordova && cordova.platformId === "ios") {
-                console.log("Using CordovaAudio mic source");
+                console.log("[microphone.js] Using CordovaAudio mic source");
                 return this.audioResource = new CordovaAudio(onSuccess, onReject, audioCtx, self);
+            } else {
+                console.warn("[microphone.js] something is wrong, lol");
             }
 
             if ( self.flash && this.thisBrowserHasFlash()) {

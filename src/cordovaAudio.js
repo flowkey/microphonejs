@@ -37,7 +37,7 @@ CordovaAudio.prototype.load = function(bufferLength, onSuccess, onReject) {
 
 	// Ask for mic permission and call onSuccess if we got it
 	getBuffer(function (buffer) {
-		console.log("Got initial response");
+		console.log("[cordovaAudio] Got initial response");
 		if (buffer && buffer.byteLength) {
 			console.log("Success!");
 			onSuccess();
@@ -49,9 +49,12 @@ CordovaAudio.prototype.load = function(bufferLength, onSuccess, onReject) {
 	var micBuffer = new Float32Array(bufferLength);
 
 	this.microphone.sourceNode.onaudioprocess = function(e) {
+		// console.log("[cordovaAudio] sourceNode onaudioprocess");
+
 		var webAudioNodeOutput = e.outputBuffer.getChannelData(0);
 		
 		getBuffer(function (buffer) {
+			// console.log("[cordovaAudio] getBuffer recall", buffer);
 			if (!buffer.byteLength) {
 				return console.log("Error!:", buffer);
 			}
