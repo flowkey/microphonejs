@@ -46,7 +46,7 @@ CordovaAudio.prototype.load = function(bufferLength, onSuccess, onReject) {
 		}
 	});
 
-	var micBuffer = new Float32Array(bufferLength);
+	// var micBuffer = new Float32Array(bufferLength);
 
 	this.microphone.sourceNode.onaudioprocess = function(e) {
 		// console.log("[cordovaAudio] sourceNode onaudioprocess");
@@ -58,8 +58,8 @@ CordovaAudio.prototype.load = function(bufferLength, onSuccess, onReject) {
 			if (!buffer.byteLength) {
 				return console.log("Error!:", buffer);
 			}
-			micBuffer = new Float32Array(buffer);
-			webAudioNodeOutput.set(micBuffer);
+			// micBuffer = new Float32Array(buffer);
+			webAudioNodeOutput.set(new Float32Array(buffer));
 		});
 	}
 };
