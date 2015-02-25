@@ -1,17 +1,11 @@
 HTML5Audio = function(onSuccess, onReject, audioCtx, microphone) {
     var self = this;
-    this.audioBuffer;
     this.microphone = microphone;
-    this.status = "no status";
-    this.load(onSuccess, onReject);
+    this.audioCtx = audioCtx;
+    // this.status = "no status";
+    this.mediaStream;
 
-    //callback function to be executed when Microphone is accepted
-    this.createSourceNode = function() {
-        // create media stream source node with audioContext
-        microphone.sourceNode = audioCtx.createMediaStreamSource(self.audioBuffer);
-        // connect to webAudioNode
-        microphone.sourceNode.connect(microphone.webAudioNode);
-    }
+    this.load(onSuccess, onReject);
 
 }
 
@@ -21,8 +15,19 @@ HTML5Audio.prototype = new AudioResource;
 _.extend(HTML5Audio.prototype, {
     constructor: HTML5Audio,
 
-    load: function(onSuccess, onReject) {
+    //callback function to be executed when Microphone is accepted
+    createSourceNode: function(stream) {
+        console.log("[HTML5 Audio] create source node");
 
+        this.mediaStream = stream;
+        // create media stream source node with audioContext
+        this.microphone.sourceNode = this.audioCtx.createMediaStreamSource(this.mediaStream);
+        // connect to webAudioNode
+        this.microphone.sourceNode.connect(this.microphone.webAudioNode);
+    },
+
+    load: function(onSuccess, onReject) {
+        console.log("[HTML5 Audio] loading...")
         var self = this;
 
         try {
@@ -38,12 +43,11 @@ _.extend(HTML5Audio.prototype, {
         navigator.getUserMedia({
             audio: true
         }, function(stream) {
-            //create Source with the stream from getUserMedia
-            self.audioBuffer = stream;
+
             // console.log(self);
-            self.createSourceNode();
+            self.createSourceNode(stream);
             try {
-                onSuccess();
+                onSuccess(stream);
             } catch (e) {
                 console.log(e);
             }
@@ -51,29 +55,29 @@ _.extend(HTML5Audio.prototype, {
         }, onReject); // end of getUsermedia
     },
 
-    // returns Audio Buffer
-    getBuffer: function() {
-        return this.audioBuffer;
-    },
+    // // returns Audio Buffer
+    // getBuffer: function() {
+    //     return this.mediaStream;
+    // },
 
-    // returns Status of Audioresource
-    // unloaded - loading - ready - error - noSound 
-    getStatus: function() {
-        return this.status;
-    },
+    // // returns Status of Audioresource
+    // // unloaded - loading - ready - error - noSound 
+    // getStatus: function() {
+    //     return this.status;
+    // },
 
     // mutes the Audio Input
     mute: function() {
-        this.audioBuffer.getAudioTracks()[0].enabled = false;
+        this.mediaStream.getAudioTracks()[0].enabled = false;
     },
 
     // unmutes the Audio Input
     unmute: function() {
-        this.audioBuffer.getAudioTracks()[0].enabled = true;
+        this.mediaStream.getAudioTracks()[0].enabled = true;
     },
 
     // disable microphone entirely
     disable: function() {
-        this.audioBuffer.stop();
+        this.mediaStream.stop();
     }
 })

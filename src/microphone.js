@@ -2,6 +2,14 @@
 
 Microphone = function(options) {
 
+    this.audioCtx = options.audioContext;
+    this.onSuccess = options.onSuccess;
+    this.onReject = options.onReject;
+    this.onNoSource = options.onNoSource;
+    this.onAudioData = options.onAudioData;
+    this.onFlashInit = options.onFlashInit;
+    this.onNoSignal = options.onNoSignal;
+
     this.micCheckDuration = 10;
     this.micCheckCounter = 0;
     this.audioFrameSum = 0;
@@ -12,30 +20,24 @@ Microphone = function(options) {
 
     this.flash = options.flash !== undefined ? options.flash : true;
 
-    this.load(options);
-   
+    this.loaded = false;
+    this.started = false;
+    this.start();
 
 };
 
 
 // Control Interface
 _.extend(Microphone.prototype, {
-    load: function(options) {
+    load: function() {
+        console.log("[Microphone] loading");
         var self = this;
-        var audioCtx = options.audioContext;
-
-        var onSuccess = options.onSuccess;
-        var onReject = options.onReject;
-        var onNoSource = options.onNoSource;
-        var onAudioData = options.onAudioData;
-        var onFlashInit = options.onFlashInit;
-        self.onNoSignal = options.onNoSignal;
 
         /*
          * create webAudioNode which executes onAudioData handler
          * and does a micCheck, whichs calls noSignal handler if necessary
          */
-        self.webAudioNode = audioCtx.createScriptProcessor(1024, 1, 1);
+        self.webAudioNode = self.audioCtx.createScriptProcessor(1024, 1, 1);
         self.webAudioNode.onaudioprocess = function(e) {
 
             var nodeInput = e.inputBuffer.getChannelData(0);
@@ -47,33 +49,47 @@ _.extend(Microphone.prototype, {
             }
 
             //execute processAudioData function (just for the first (left) channel right now)
-            if (onAudioData) {
-                onAudioData(nodeInput);
+            if (self.onAudioData) {
+                self.onAudioData(nodeInput);
             }
 
             //set node output
             nodeOutput.set(nodeInput);
         }
 
+        this.loaded = true;
+    },
+
+
+    start: function(){
+        var self = this;
+
+        console.log("[Microphone] starting");
+
+        var firstStart = false;
+
+        if (!this.loaded){
+            this.load();
+            firstStart = true;
+        }
 
         /*
          * check for getUserMedia or flash
-         * call noSourceH handler if none of them exists
+         * call noSourceHandler if none of them exists
          */
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
         if (navigator.getUserMedia) {
-
             //create HTML5 getUserMedia Microphone Input
-            this.audioResource = new HTML5Audio(onSuccess, onReject, audioCtx, self);
+            this.audioResource = new HTML5Audio(this.onSuccess, this.onReject, this.audioCtx, this);
         } else {
-            if ( self.flash && this.thisBrowserHasFlash()) {
+            if (this.flash && this.thisBrowserHasFlash()) {
                 //create Flash Microphone Input
-                this.audioResource = new FlashAudio(onSuccess, onReject, audioCtx, self);
-                if(onFlashInit) onFlashInit();
+                this.audioResource = new FlashAudio(this.onSuccess, this.onReject, this.audioCtx, this);
+                if(this.onFlashInit) this.onFlashInit();
             } else {
                 try {
-                    onNoSource();
+                    this.onNoSource();
                 } catch (e) {
                     console.log(e);
                     console.warn("No getUserMedia and no Flash detected, please switch to a REAL browser or install Flash.");
@@ -109,21 +125,23 @@ _.extend(Microphone.prototype, {
         }
     },
 
-    status: function() {
-        // wraps audioresource status
-        // actual microphone status - should be reactive 
-        // unloaded - loading - ready - error - noSound
-        return this.audioResource.getStatus();
-
-    },
-
     stop: function() {
+        console.log("[Microphone] stopping");
         // stops microphone input entirely
         this.audioResource.disable();
     },
 
-    pause: function() {
-        // pauses microphone input for a moment
-        // maybe not possible
-    }
+    // status: function() {
+    //     // wraps audioresource status
+    //     // actual microphone status - should be reactive 
+    //     // unloaded - loading - ready - error - noSound
+    //     return this.audioResource.getStatus();
+
+    // },
+
+
+    // pause: function() {
+    //     // pauses microphone input for a moment
+    //     // maybe not possible
+    // }
 })
