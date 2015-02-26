@@ -78,6 +78,6 @@ _.extend(HTML5Audio.prototype, {
 
     // disable microphone entirely
     disable: function() {
-        this.mediaStream.stop();
+        if( this.mediaStream ) this.mediaStream.stop();
     }
 })

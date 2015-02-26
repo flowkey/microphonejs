@@ -66,11 +66,9 @@ _.extend(Microphone.prototype, {
 
         console.log("[Microphone] starting");
 
-        var firstStart = false;
 
         if (!this.loaded){
             this.load();
-            firstStart = true;
         }
 
         /*
