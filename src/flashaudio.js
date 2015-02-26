@@ -2,31 +2,13 @@ FlashAudio = function(onSuccess, onReject, audioCtx, microphone) {
     //special variables
     self = this;
     this.microphone = microphone;
+    this.audioCtx = audioCtx;
+    
     this.bufferLength = 2048;
     this.conversionNumber = 27647; //mysterious conversion number
     this.execCallbacks = true;
-    this.status = "no status";
+    // this.status = "no status";
     this.audioBuffer = audioCtx.createBuffer(1, this.bufferLength, audioCtx.sampleRate);
-
-
-    //callback function to be executed when Microphone is accepted
-    this.createSourceNode = function() {
-
-        // create buffer source node with audioContext
-        microphone.sourceNode = audioCtx.createBufferSource();
-
-        //init Buffer (gets filled on the MicrophoneF.ondata event)
-        microphone.sourceNode.buffer = self.audioBuffer;
-
-        //little trick, that needs to be done: set self.sourceNode on loop, so it is played permanently (with different buffer content of course)
-        microphone.sourceNode.loop = true;
-
-        //start "playing" the bufferSource
-        microphone.sourceNode.start(0);
-
-        // connect sourceNode to webAudioNode
-        microphone.sourceNode.connect(microphone.webAudioNode);
-    }
 
     this.load(onSuccess, onReject);
 }
@@ -36,6 +18,25 @@ FlashAudio.prototype = new AudioResource;
 
 _.extend(FlashAudio.prototype, {
     constructor: FlashAudio,
+
+    //callback function to be executed when Microphone is accepted
+    createSourceNode: function() {
+
+        // create buffer source node with audioContext
+        this.microphone.sourceNode = audioCtx.createBufferSource();
+
+        //init Buffer (gets filled on the this.MicrophoneF.ondata event)
+        this.microphone.sourceNode.buffer = self.audioBuffer;
+
+        //little trick, that needs to be done: set self.sourceNode on loop, so it is played permanently (with different buffer content of course)
+        this.microphone.sourceNode.loop = true;
+
+        //start "playing" the bufferSource
+        this.microphone.sourceNode.start(0);
+
+        // connect sourceNode to webAudioNode
+        this.microphone.sourceNode.connect(microphone.webAudioNode);
+    },
 
     load: function(onSuccess, onReject) {
         var self = this;
@@ -80,16 +81,16 @@ _.extend(FlashAudio.prototype, {
 
     },
 
-    // returns Audio Buffer
-    getBuffer: function() {
-        return this.audioBuffer;
-    },
+    // // returns Audio Buffer
+    // getBuffer: function() {
+    //     return this.audioBuffer;
+    // },
 
-    // returns Status of Audioresource
-    // unloaded - loading - ready - error - noSound 
-    getStatus: function() {
-        return this.status;
-    },
+    // // returns Status of Audioresource
+    // // unloaded - loading - ready - error - noSound 
+    // getStatus: function() {
+    //     return this.status;
+    // },
 
     // mutes the Audio Input
     mute: function() {
