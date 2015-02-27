@@ -1,99 +1,95 @@
 if (!Meteor.isCordova) return;
 
-CordovaAudio = function (onSuccess, onReject, audioCtx, microphone) {
-	console.log("Initialising CordovaAudio plugin...");
+CordovaAudio = function(onSuccess, onReject, audioCtx, microphone) {
+    //special variables
+    self = this;
+    this.microphone = microphone;
+    this.bufferLength = 2048;
 
-	var bufferLength = 2048; // note that the incoming buffer from cordova is 4x this long (because it's full of (32 = 4 x 8)-bit numbers)
-	this.audioBuffer = audioCtx.createBuffer(1, bufferLength, audioCtx.sampleRate);
-	this.microphone = microphone;
-
-    // create buffer source node with audioContext
-    microphone.sourceNode = audioCtx.createScriptProcessor(bufferLength, 1, 1); // 1 inputs, 1 mono output
-	microphone.sourceNode.connect(microphone.webAudioNode);
-
-	//callback function to be executed when Microphone is accepted
-	this.createSourceNode = function() {
-
-	    //init Buffer (gets filled on the MicrophoneF.ondata event)
-	    // microphone.sourceNode.buffer = self.audioBuffer;
-
-	    // //little trick, that needs to be done: set self.sourceNode on loop, so it is played permanently (with different buffer content of course)
-	    // microphone.sourceNode.loop = true;
-
-	    // //start "playing" the bufferSource
-	    // microphone.sourceNode.start(0);
-
-	    // connect sourceNode to webAudioNode
-		
-	}
-	
-	
-	this.load(bufferLength, onSuccess, onReject);
-};
+    this.execCallbacks = true;
+    this.status = "no status";
+    this.audioBuffer = audioCtx.createBuffer(1, this.bufferLength, audioCtx.sampleRate);
 
 
-CordovaAudio.prototype.load = function(bufferLength, onSuccess, onReject) {
-	console.log("[cordovaAudio] Loading Mic");
+    //callback function to be executed when Microphone is accepted
+    this.createSourceNode = function() {
 
-	// Ask for mic permission and call onSuccess if we got it
-	getBuffer(function (buffer) {
-		console.log("[cordovaAudio] Got initial response");
-		if (buffer && buffer.byteLength) {
-			console.log("Success!");
-			onSuccess();
-		} else {
-			console.log("Fail!");
-		}
-	});
+        // create buffer source node with audioContext
+        microphone.sourceNode = audioCtx.createBufferSource();
 
-	// var micBuffer = new Float32Array(bufferLength);
+        //init Buffer (gets filled on the MicrophoneF.ondata event)
+        microphone.sourceNode.buffer = self.audioBuffer;
 
-	this.microphone.sourceNode.onaudioprocess = function(e) {
-		// console.log("[cordovaAudio] sourceNode onaudioprocess");
+        //little trick, that needs to be done: set self.sourceNode on loop, so it is played permanently (with different buffer content of course)
+        microphone.sourceNode.loop = true;
 
-		var webAudioNodeOutput = e.outputBuffer.getChannelData(0);
-		
-		getBuffer(function (buffer) {
-			// console.log("[cordovaAudio] getBuffer recall", buffer);
-			if (!buffer.byteLength) {
-				return console.log("Error!:", buffer);
-			}
-			// micBuffer = new Float32Array(buffer);
-			webAudioNodeOutput.set(new Float32Array(buffer));
-		});
-	}
-};
+        //start "playing" the bufferSource
+        microphone.sourceNode.start(0);
+
+        // connect sourceNode to webAudioNode
+        microphone.sourceNode.connect(microphone.webAudioNode);
+    }
+
+    this.load(onSuccess, onReject);
+}
+
+CordovaAudio.prototype = new AudioResource;
 
 
-// -----------------------------------------------------------------------------
-// 
+_.extend(CordovaAudio.prototype, {
+    constructor: CordovaAudio,
 
+    load: function(onSuccess, onReject) {
+        var self = this;
 
-function getBuffer (callback) {
-	callback = callback || defaultGetBufferCallback;
-	cordova.exec(callback, function(err) {
-		callback('Error.');
-	}, "MicAccess", "getBuffer", []);
-};
+        console.log("[cordovaAudio] Loading Mic");
+        var micBuffer = self.audioBuffer.getChannelData(0);
 
-function logBuffer () {
-	getBuffer(function (buffer) {
-		if (!buffer.byteLength) {
-			return console.log("Error!:", buffer);
-		}
+        // Ask for mic permission and call onSuccess if we got it
+        initStream(function (response) {
+            console.log("[cordovaAudio] Got initial response:", response);
+            if (response === "OK") {
+                console.log("Starting Mic!");
+                self.createSourceNode();
+                onSuccess();
 
-		var float32 = new Float32Array(buffer);
-		var bufferContents = "";
+                startStreaming(function (nativeMicDataBuffer) {
+                    micBuffer.set(new Float32Array(nativeMicDataBuffer));
+                });
+            } else {
+                console.log("[cordovaAudio] Fail! Response was", response);
+            }
+        });
+    },
 
-		for (var i = 0; i < buffer.byteLength / 4; i++) {
-			bufferContents += float32[i];
-			bufferContents += " ";
-		}
+    stop: function () {
+        stopStreaming(function (response) {
+            if (response === "OK") {
+                console.log("[cordovaAudio] Stopped mic successfully");
+            } else {
+                console.warn("[cordovaAudio] Couldn't stop mic!");
+            }
+        });
+    }
+});
 
-		console.log("Buffer:" + bufferContents);
-	});
-};
+function initStream (callback) {
+    console.log("[cordovaAudio] initStream");
+    cordova.exec(callback, function(err) {
+        callback('Error.');
+    }, "MicAccess", "getBuffer", []);
+}
 
-function defaultGetBufferCallback (buffer) {
-	console.log(buffer);
-};
+function startStreaming (callback) {
+    console.log("[cordovaAudio] startStreaming");
+    cordova.exec(callback, function(err) {
+        callback('Error.');
+    }, "MicAccess", "startStreaming", []);
+}
+
+function stopStreaming (callback) {
+    console.log("[cordovaAudio] stopStreaming");
+    cordova.exec(callback, function(err) {
+        callback('Error.');
+    }, "MicAccess", "stopStreaming", []);
+}
