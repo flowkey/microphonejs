@@ -23,10 +23,10 @@ _.extend(FlashAudio.prototype, {
     createSourceNode: function() {
 
         // create buffer source node with audioContext
-        this.microphone.sourceNode = audioCtx.createBufferSource();
+        this.microphone.sourceNode = this.audioCtx.createBufferSource();
 
         //init Buffer (gets filled on the this.MicrophoneF.ondata event)
-        this.microphone.sourceNode.buffer = self.audioBuffer;
+        this.microphone.sourceNode.buffer = this.audioBuffer;
 
         //little trick, that needs to be done: set self.sourceNode on loop, so it is played permanently (with different buffer content of course)
         this.microphone.sourceNode.loop = true;
@@ -35,7 +35,7 @@ _.extend(FlashAudio.prototype, {
         this.microphone.sourceNode.start(0);
 
         // connect sourceNode to webAudioNode
-        this.microphone.sourceNode.connect(microphone.webAudioNode);
+        this.microphone.sourceNode.connect(this.microphone.webAudioNode);
     },
 
     load: function(onSuccess, onReject) {
