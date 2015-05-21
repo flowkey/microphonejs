@@ -7,7 +7,7 @@ FlashAudio = function(onSuccess, onReject, audioCtx, microphone) {
     this.bufferLength = 2048;
     this.conversionNumber = 27647; //mysterious conversion number
     this.execCallbacks = true;
-    // this.status = "no status";
+
     this.audioBuffer = audioCtx.createBuffer(1, this.bufferLength, audioCtx.sampleRate);
 
     this.load(onSuccess, onReject);
@@ -34,8 +34,8 @@ _.extend(FlashAudio.prototype, {
         //start "playing" the bufferSource
         this.microphone.sourceNode.start(0);
 
-        // connect sourceNode to webAudioNode
-        this.microphone.sourceNode.connect(this.microphone.webAudioNode);
+        // connect sourceNode to intermediateNode
+        this.microphone.sourceNode.connect(this.microphone.intermediateNode);
     },
 
     load: function(onSuccess, onReject) {
@@ -71,7 +71,6 @@ _.extend(FlashAudio.prototype, {
                         console.error(e);
                         self.execCallbacks = false;
                     }
-                    
 
                     self.execCallbacks = false;
                 }
@@ -80,18 +79,22 @@ _.extend(FlashAudio.prototype, {
         });
 
     },
+    
+         // starts streaming
+    start: function(){
+        console.log("not implemented");
+    },
 
-    // // returns Audio Buffer
-    // getBuffer: function() {
-    //     return this.audioBuffer;
-    // },
-
-    // // returns Status of Audioresource
-    // // unloaded - loading - ready - error - noSound 
-    // getStatus: function() {
-    //     return this.status;
-    // },
-
+    // stop streaming
+    stop: function(){
+        console.log("not implemented");
+    },
+    
+    // disable microphone entirely
+    disable: function() {
+        MicrophoneF.disable();
+    },
+    
     // mutes the Audio Input
     mute: function() {
         var self = this;
@@ -117,9 +120,4 @@ _.extend(FlashAudio.prototype, {
             };
         });
     },
-
-    // disable microphone entirely
-    disable: function() {
-        MicrophoneF.disable();
-    }
-})
+});

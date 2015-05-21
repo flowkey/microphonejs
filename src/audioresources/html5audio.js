@@ -2,7 +2,7 @@ HTML5Audio = function(onSuccess, onReject, audioCtx, microphone) {
     var self = this;
     this.microphone = microphone;
     this.audioCtx = audioCtx;
-    // this.status = "no status";
+
     this.mediaStream;
 
     this.load(onSuccess, onReject);
@@ -17,17 +17,16 @@ _.extend(HTML5Audio.prototype, {
 
     //callback function to be executed when Microphone is accepted
     createSourceNode: function(stream) {
-        console.log("[HTML5 Audio] create source node");
-
+        // reference mediaStream for later use
         this.mediaStream = stream;
         // create media stream source node with audioContext
         this.microphone.sourceNode = this.audioCtx.createMediaStreamSource(this.mediaStream);
-        // connect to webAudioNode
-        this.microphone.sourceNode.connect(this.microphone.webAudioNode);
+        // connect to intemediateNode
+        this.microphone.sourceNode.connect(this.microphone.intermediateNode);
     },
 
     load: function(onSuccess, onReject) {
-        console.log("[HTML5 Audio] loading...")
+
         var self = this;
 
         try {
@@ -54,17 +53,21 @@ _.extend(HTML5Audio.prototype, {
 
         }, onReject); // end of getUsermedia
     },
+    
+     // starts streaming
+    start: function(){
+        console.log("not implemented");
+    },
 
-    // // returns Audio Buffer
-    // getBuffer: function() {
-    //     return this.mediaStream;
-    // },
-
-    // // returns Status of Audioresource
-    // // unloaded - loading - ready - error - noSound 
-    // getStatus: function() {
-    //     return this.status;
-    // },
+    // stop streaming
+    stop: function(){
+        console.log("not implemented");
+    },
+    
+    // disable microphone entirely
+    disable: function() {
+        if( this.mediaStream ) this.mediaStream.stop();
+    },
 
     // mutes the Audio Input
     mute: function() {
@@ -76,8 +79,4 @@ _.extend(HTML5Audio.prototype, {
         this.mediaStream.getAudioTracks()[0].enabled = true;
     },
 
-    // disable microphone entirely
-    disable: function() {
-        if( this.mediaStream ) this.mediaStream.stop();
-    }
 })

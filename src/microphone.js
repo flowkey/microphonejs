@@ -14,9 +14,9 @@ Microphone = function(options) {
     this.micCheckCounter = 0;
     this.audioFrameSum = 0;
 
-    this.sourceNode;
     this.audioResource;
-    this.webAudioNode;
+    this.sourceNode;
+    this.intermediateNode;
 
     this.flash = options.flash !== undefined ? options.flash : true;
 
@@ -30,15 +30,15 @@ Microphone = function(options) {
 // Control Interface
 _.extend(Microphone.prototype, {
     load: function() {
-        console.log("[Microphone] loading");
+
         var self = this;
 
         /*
-         * create webAudioNode which executes onAudioData handler
+         * create intermediate node which executes onAudioData handler
          * and does a micCheck, whichs calls noSignal handler if necessary
          */
-        self.webAudioNode = self.audioCtx.createScriptProcessor(1024, 1, 1);
-        self.webAudioNode.onaudioprocess = function(e) {
+        self.intermediateNode = self.audioCtx.createScriptProcessor(1024, 1, 1);
+        self.intermediateNode.onaudioprocess = function(e) {
 
             var nodeInput = e.inputBuffer.getChannelData(0);
             var nodeOutput = e.outputBuffer.getChannelData(0);
@@ -63,9 +63,6 @@ _.extend(Microphone.prototype, {
 
     start: function(){
         var self = this;
-
-        console.log("[Microphone] starting");
-
 
         if (!this.loaded){
             this.load();
@@ -128,18 +125,4 @@ _.extend(Microphone.prototype, {
         // stops microphone input entirely
         this.audioResource.disable();
     },
-
-    // status: function() {
-    //     // wraps audioresource status
-    //     // actual microphone status - should be reactive 
-    //     // unloaded - loading - ready - error - noSound
-    //     return this.audioResource.getStatus();
-
-    // },
-
-
-    // pause: function() {
-    //     // pauses microphone input for a moment
-    //     // maybe not possible
-    // }
-})
+});
