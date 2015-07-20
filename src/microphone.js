@@ -60,6 +60,14 @@ _.extend(Microphone.prototype, {
         this.loaded = true;
     },
 
+    connect: function(webaudioNode){
+        var self = this;
+        try {
+            self.intermediateNode.connect(webaudioNode);
+        } catch(e) {
+            console.error(e)
+        }
+    },
 
     start: function(){
         var self = this;
@@ -78,17 +86,11 @@ _.extend(Microphone.prototype, {
             //create HTML5 getUserMedia Microphone Input
             this.audioResource = new HTML5Audio(this.onSuccess, this.onReject, this.audioCtx, this);
         } else {
-            if (this.flash && this.thisBrowserHasFlash()) {
-                //create Flash Microphone Input
-                this.audioResource = new FlashAudio(this.onSuccess, this.onReject, this.audioCtx, this);
-                if(this.onFlashInit) this.onFlashInit();
-            } else {
-                try {
-                    this.onNoSource();
-                } catch (e) {
-                    console.log(e);
-                    console.warn("No getUserMedia and no Flash detected, please switch to a REAL browser or install Flash.");
-                }
+            try {
+                this.onNoSource();
+            } catch (e) {
+                console.log(e);
+                console.warn("No microphone source was detected, please switch to another browser.");
             }
         }
     },
@@ -108,15 +110,6 @@ _.extend(Microphone.prototype, {
 
                 }
             }
-        }
-    },
-
-    thisBrowserHasFlash: function() {
-        if ((typeof swfobject !== 'undefined') && (swfobject.hasFlashPlayerVersion('10.0.0'))) {
-            // console.log("swfobject is available, your major version is " + swfobject.getFlashPlayerVersion().major);
-            return true;
-        } else {
-            return false;
         }
     },
 

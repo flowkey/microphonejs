@@ -35,7 +35,7 @@ _.extend(HTML5Audio.prototype, {
                 navigator.mozGetUserMedia ||
                 navigator.msGetUserMedia;
         } catch (e) {
-            alert('getUserMedia is not supported in this browser.');
+            console.error('getUserMedia is not supported in this browser.');
         }
 
 
