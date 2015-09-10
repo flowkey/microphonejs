@@ -10,7 +10,7 @@ Microphone = function(options) {
     this.onFlashInit = options.onFlashInit;
     this.onNoSignal = options.onNoSignal;
 
-    this.micCheckDuration = 10;
+    this.micCheckDuration = 20;
     this.micCheckCounter = 0;
     this.audioFrameSum = 0;
 
