@@ -11,7 +11,6 @@ HTML5Audio = function(onSuccess, onReject, audioCtx, microphone) {
 
 HTML5Audio.prototype = new AudioResource;
 
-
 _.extend(HTML5Audio.prototype, {
     constructor: HTML5Audio,
 
@@ -19,8 +18,10 @@ _.extend(HTML5Audio.prototype, {
     createSourceNode: function(stream) {
         // reference mediaStream for later use
         this.mediaStream = stream;
+
         // create media stream source node with audioContext
         this.microphone.sourceNode = this.audioCtx.createMediaStreamSource(this.mediaStream);
+
         // connect to intemediateNode
         this.microphone.sourceNode.connect(this.microphone.intermediateNode);
     },
@@ -38,7 +39,6 @@ _.extend(HTML5Audio.prototype, {
             console.error('getUserMedia is not supported in this browser.');
         }
 
-
         navigator.getUserMedia({
             audio: true
         }, function(stream) {
@@ -53,20 +53,27 @@ _.extend(HTML5Audio.prototype, {
 
         }, onReject); // end of getUsermedia
     },
-    
-     // starts streaming
-    start: function(){
-        console.log("not implemented");
+
+    // starts streaming
+    start: function() {
+        console.log('not implemented');
     },
 
     // stop streaming
-    stop: function(){
-        console.log("not implemented");
+    stop: function() {
+        console.log('not implemented');
     },
-    
+
     // disable microphone entirely
     disable: function() {
-        if( this.mediaStream ) this.mediaStream.stop();
+        if (this.mediaStream) {
+            if (this.mediaStream.stop) {
+                this.mediaStream.stop();
+            }else {
+                var track = this.mediaStream.getAudioTracks()[0];
+                track.stop();
+            }
+        }
     },
 
     // mutes the Audio Input
@@ -77,6 +84,6 @@ _.extend(HTML5Audio.prototype, {
     // unmutes the Audio Input
     unmute: function() {
         this.mediaStream.getAudioTracks()[0].enabled = true;
-    },
+    }
 
 })

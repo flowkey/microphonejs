@@ -1,14 +1,13 @@
 Package.describe({
-    summary: "Getting Microphone input from user and route it through web audio api chain",
-    version: "1.0.1",
-  	git: "https://github.com/flowkey/microphonejs.git"
+    summary: 'Getting Microphone input from user and route it through web audio api chain',
+    version: '1.0.2',
+    git: 'https://github.com/flowkey/microphonejs.git'
 });
 
-Package.on_use(function(api, where) {
-	api.versionsFrom(['1.0']);
+Package.onUse(function(api, where) {
+    api.versionsFrom(['1.0']);
     api.use(['underscore', 'deps', 'ui'], 'client');
-    api.add_files(['src/microphone.js', 'src/AudioResource.js', 'src/audioresources/html5audio.js'], 'client');
+    api.addFiles(['src/microphone.js', 'src/AudioResource.js', 'src/audioresources/html5audio.js'], 'client');
 
-    if (api.export)
-        api.export('Microphone');
+    api.export('Microphone');
 });
