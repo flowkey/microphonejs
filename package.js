@@ -1,7 +1,8 @@
 Package.describe({
     summary: 'Getting Microphone input from user and route it through web audio api chain',
     version: '1.0.2',
-    git: 'https://github.com/flowkey/microphonejs.git'
+    git: 'https://github.com/flowkey/microphonejs.git',
+    name: 'flowkey:microphone'
 });
 
 Package.onUse(function(api, where) {
