@@ -1,89 +1,40 @@
-HTML5Audio = function(onSuccess, onReject, audioCtx, microphone) {
-    var self = this;
-    this.microphone = microphone;
-    this.audioCtx = audioCtx;
+HTML5Audio = class HTML5Audio extends AudioResource {
+    constructor(onSuccess, onReject, audioCtx) {
+        super(onSuccess, onReject, audioCtx);
+        this.mediaStream = null;
+    }
 
-    this.mediaStream;
-
-    this.load(onSuccess, onReject);
-
-}
-
-HTML5Audio.prototype = new AudioResource;
-
-_.extend(HTML5Audio.prototype, {
-    constructor: HTML5Audio,
-
-    //callback function to be executed when Microphone is accepted
-    createSourceNode: function(stream) {
-        // reference mediaStream for later use
-        this.mediaStream = stream;
-
-        // create media stream source node with audioContext
-        this.microphone.sourceNode = this.audioCtx.createMediaStreamSource(this.mediaStream);
-
-        // connect to intemediateNode
-        this.microphone.sourceNode.connect(this.microphone.intermediateNode);
-    },
-
-    load: function(onSuccess, onReject) {
-
-        var self = this;
-
-        try {
-            navigator.getUserMedia = navigator.getUserMedia ||
-                navigator.webkitGetUserMedia ||
-                navigator.mozGetUserMedia ||
-                navigator.msGetUserMedia;
-        } catch (e) {
-            console.error('getUserMedia is not supported in this browser.');
-        }
-
-        navigator.getUserMedia({
-            audio: true
-        }, function(stream) {
-
-            // console.log(self);
-            self.createSourceNode(stream);
+    enable(onSuccess, onReject) {
+        navigator.getUserMedia({ audio: true }, (stream) => {
+            this.mediaStream = stream;
             try {
+                this.sourceNode = this.audioCtx.createMediaStreamSource(stream);
                 onSuccess(stream);
             } catch (e) {
-                console.log(e);
+                console.log('Following error occured during onSuccess callback: ', e);
             }
-
-        }, onReject); // end of getUsermedia
-    },
-
-    // starts streaming
-    start: function() {
-        console.log('not implemented');
-    },
-
-    // stop streaming
-    stop: function() {
-        console.log('not implemented');
-    },
+        }, onReject);
+    }
 
     // disable microphone entirely
-    disable: function() {
+    disable() {
         if (this.mediaStream) {
             if (this.mediaStream.stop) {
                 this.mediaStream.stop();
-            }else {
-                var track = this.mediaStream.getAudioTracks()[0];
+            } else {
+                let track = this.mediaStream.getAudioTracks()[0];
                 track.stop();
             }
         }
-    },
-
-    // mutes the Audio Input
-    mute: function() {
-        this.mediaStream.getAudioTracks()[0].enabled = false;
-    },
-
-    // unmutes the Audio Input
-    unmute: function() {
-        this.mediaStream.getAudioTracks()[0].enabled = true;
     }
 
-})
+    // mutes the Audio Input
+    mute() {
+        this.mediaStream.getAudioTracks()[0].enabled = false;
+    }
+
+    // unmutes the Audio Input
+    unmute() {
+        this.mediaStream.getAudioTracks()[0].enabled = true;
+    }
+}

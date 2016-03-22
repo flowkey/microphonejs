@@ -1,38 +1,29 @@
-// this is the Interface for every audio Resource every Resource should implement this!
+// this is the interface / base class for every audio Resource every audioResource should implement / override
+AudioResource = class AudioResource {
 
-AudioResource = function() {
-    
-    this.createSourceNode = function(stream) {
-         console.log("not implemented")
+    constructor(onSuccess, onReject, audioCtx) {
+        this.sourceNode = null;
+        this.audioCtx = audioCtx;
+        this.enable(onSuccess, onReject);
     }
 
     // inits the audioresource if needed
-    this.load = function() {
+    enable(onSuccess, onReject) {
         console.log("not implemented")
     }
 
-    // starts streaming
-    this.start = function(){
-        console.log("not implemented");
-    }
-
-    // stop streaming
-    this.stop = function(){
-        console.log("not implemented");
-    }
-    
     // disable microphone entirely
-    this.disable = function() {
+    disable() {
         console.log("not implemented")
     }
 
     // mutes the Audio Input
-    this.mute = function() {
+    mute() {
         console.log("not implemented")
     }    
 
     // unmutes the Audio Input
-    this.unmute = function() {
+    unmute() {
         console.log("not implemented")
     }
 }
