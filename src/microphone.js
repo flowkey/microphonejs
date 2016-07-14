@@ -1,54 +1,64 @@
+const MIC_CHECK_DURATION = 10000;
+
+const MicCheckState = {
+    inactive: 0,
+    active: 1,
+    check: 2
+};
+
 Microphone = class Microphone {
     constructor(options) {
         this.audioCtx = options.audioContext;
+        this.bufferSize = options.bufferSize || 512;
+        this.audioResource = null;
+        this.intermediateNode = null;
+
         this.userOnSuccess = options.onSuccess;
         this.userOnReject = options.onReject;
         this.onNoSource = options.onNoSource;
+        this.onNoSignal = options.onNoSignal;
         this.onAudioData = options.onAudioData;
 
-        this.onNoSignal = options.onNoSignal;
-        this.bufferSize = options.bufferSize || 512;
-
-        this.micCheckDuration = 50;
-        this.micCheckCounter = 0;
+        this.micCheckState = MicCheckState.inactive;
         this.audioFrameSum = 0;
-
-        this.audioResource = null;
-        this.intermediateNode = null;
 
         this.loaded = false;
         this.start();
     }
 
     load() {
-
-        /*
-         * create intermediate node which executes onAudioData handler
-         * and does a micCheck, whichs calls noSignal handler if necessary
-         */
+        // create intermediate node with custom onaudioprocess function
         this.intermediateNode = this.audioCtx.createScriptProcessor(this.bufferSize, 1, 1);
-        this.intermediateNode.onaudioprocess = (e) => {
-            var nodeInput = e.inputBuffer.getChannelData(0);
-            var nodeOutput = e.outputBuffer.getChannelData(0);
+        this.intermediateNode.onaudioprocess = this.onAudioProcess.bind(this);
 
-            //check if there is any signal during the first audio frames
-            if (this.micCheckCounter < this.micCheckDuration) {
-                this.micCheck(nodeInput);
-            }
-
-            //execute processAudioData function (just for the first (left) channel right now)
-            if (this.onAudioData) {
-                this.onAudioData(nodeInput);
-            }
-
-            //set node output
-            nodeOutput.set(nodeInput);
-        }
+        this.micCheckState = MicCheckState.active;
+        let self = this;
+        setTimeout( () => {
+            self.micCheckState = MicCheckState.check;
+        }, MIC_CHECK_DURATION);
 
         this.loaded = true;
     }
 
-    connect(webaudioNode){
+    onAudioProcess(e) {
+        var nodeInput = e.inputBuffer.getChannelData(0);
+        var nodeOutput = e.outputBuffer.getChannelData(0);
+
+        //execute processAudioData function (just for the first (left) channel right now)
+        if (this.onAudioData) {
+            this.onAudioData(nodeInput);
+        }
+
+        //set node output
+        nodeOutput.set(nodeInput);
+
+        if (this.micCheckState == MicCheckState.inactive) {
+            return;
+        }
+        this.micCheck(nodeInput);
+    }
+
+    connect(webaudioNode) {
         try {
             this.intermediateNode.connect(webaudioNode);
         } catch (e) {
@@ -92,11 +102,13 @@ Microphone = class Microphone {
     }
 
     micCheck(audioFrame) {
-        this.micCheckCounter++;
-        for (var i = audioFrame.length - 1; i >= 0; i--) {
-            this.audioFrameSum += audioFrame[i];
-        };
-        if (this.micCheckCounter == this.micCheckDuration) {
+        if (this.micCheckState == MicCheckState.active) {
+            for (var i = audioFrame.length - 1; i >= 0; i--) {
+                const abs = Math.abs(audioFrame[i]);
+                if (isNaN(abs)) return;
+                this.audioFrameSum += abs;
+            };
+        } else if (this.micCheckState == MicCheckState.check) {
             if (this.audioFrameSum == 0) {
                 console.warn('No signal from microphone detected, check your operating systems audio settings.');
                 try {
@@ -105,6 +117,7 @@ Microphone = class Microphone {
                     console.error('Error during execution of onNoSignal(): ', e);
                 }
             }
+            this.micCheckState = MicCheckState.inactive;
         }
     }
 
