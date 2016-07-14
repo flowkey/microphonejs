@@ -8,7 +8,7 @@ Package.describe({
 Package.onUse(function(api, where) {
     api.versionsFrom(['1.2']);
     api.use(['deps', 'ui', 'ecmascript'], 'client');
-    api.addFiles(['src/microphone.js', 'src/AudioResource.js', 'src/audioresources/html5audio.js'], 'client');
+    api.addFiles(['src/microphone.js', 'src/html5audio.js'], 'client');
 
     api.export('Microphone');
 });

@@ -1,6 +1,8 @@
-HTML5Audio = class HTML5Audio extends AudioResource {
+HTML5Audio = class HTML5Audio {
     constructor(onSuccess, onReject, audioCtx) {
-        super(onSuccess, onReject, audioCtx);
+        this.sourceNode = null;
+        this.audioCtx = audioCtx;
+        this.enable(onSuccess, onReject);
         this.mediaStream = null;
     }
 

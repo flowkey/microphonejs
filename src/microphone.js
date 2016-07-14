@@ -17,7 +17,7 @@ Microphone = class Microphone {
         this.intermediateNode = null;
 
         this.loaded = false;
-        this.start();   
+        this.start();
     }
 
     load() {
