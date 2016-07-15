@@ -9,7 +9,7 @@ Microphone = class Microphone {
         this.onNoSignal = options.onNoSignal;
         this.bufferSize = options.bufferSize || 512;
 
-        this.micCheckDuration = 20;
+        this.micCheckDuration = 200;
         this.micCheckCounter = 0;
         this.audioFrameSum = 0;
 
@@ -17,7 +17,7 @@ Microphone = class Microphone {
         this.intermediateNode = null;
 
         this.loaded = false;
-        this.start();   
+        this.start();
     }
 
     load() {
