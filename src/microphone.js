@@ -22,22 +22,11 @@ Microphone = class Microphone {
         this.micCheckState = MicCheckState.inactive;
         this.audioFrameSum = 0;
 
-        this.loaded = false;
-        this.start();
-    }
-
-    load() {
         // create intermediate node with custom onaudioprocess function
         this.intermediateNode = this.audioCtx.createScriptProcessor(this.bufferSize, 1, 1);
         this.intermediateNode.onaudioprocess = this.onAudioProcess.bind(this);
 
-        this.micCheckState = MicCheckState.active;
-        let self = this;
-        setTimeout( () => {
-            self.micCheckState = MicCheckState.check;
-        }, MIC_CHECK_DURATION);
-
-        this.loaded = true;
+        this.start();
     }
 
     onAudioProcess(e) {
@@ -67,38 +56,31 @@ Microphone = class Microphone {
     }
 
     start() {
-        if (!this.loaded) {
-            this.load();
-        }
 
-        /*
-         * check for getUserMedia
-         * call noSourceHandler if not exists
-         */
+        // check for getUserMedia
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || navigator.msGetUserMedia;
-
-        if (navigator.getUserMedia) {
-            //create HTML5 getUserMedia Microphone Input
-            let onSuccess = () => {
-                if (this.audioResource) {
-                    this.audioResource.sourceNode.connect(this.intermediateNode);
-                    this.userOnSuccess();
-                } else {
-                    console.error('audioResource should exist but does not');
-                }
-            }
-            let onReject = () => {
-                this.userOnReject();
-            }
-            this.audioResource = new HTML5Audio(onSuccess, onReject, this.audioCtx);
-        } else {
+        if (!navigator.getUserMedia) {
             console.warn('No microphone source was detected, please switch to another browser.');
             try {
                 this.onNoSource();
             } catch (e) {
                 console.error('An error occured during execution of onNoSource(): ', e);
             }
+            return;
         }
+
+        this.audioResource = new HTML5Audio( () => {
+            this.micCheckState = MicCheckState.active;
+
+            let self = this;
+            setTimeout(() => {
+                self.micCheckState = MicCheckState.check;
+            }, MIC_CHECK_DURATION);
+
+            this.audioResource.sourceNode.connect(this.intermediateNode);
+            this.userOnSuccess();
+
+        }, this.userOnReject, this.audioCtx);
     }
 
     micCheck(audioFrame) {
@@ -117,7 +99,10 @@ Microphone = class Microphone {
                     console.error('Error during execution of onNoSignal(): ', e);
                 }
             }
+
+            // reset
             this.micCheckState = MicCheckState.inactive;
+            this.audioFrameSum = 0;
         }
     }
 
