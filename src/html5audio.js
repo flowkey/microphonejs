@@ -1,9 +1,9 @@
 HTML5Audio = class HTML5Audio {
     constructor(onSuccess, onReject, audioCtx) {
-        this.sourceNode = null;
         this.audioCtx = audioCtx;
-        this.enable(onSuccess, onReject);
+        this.sourceNode = null;
         this.mediaStream = null;
+        this.enable(onSuccess, onReject);
     }
 
     enable(onSuccess, onReject) {
