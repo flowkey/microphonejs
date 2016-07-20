@@ -75,7 +75,7 @@ Microphone = class Microphone {
         for (var i = audioFrame.length - 1; i >= 0; i--) {
             let sampleAbs = Math.abs(audioFrame[i]);
             if (isNaN(sampleAbs)) return;
-            this.audioFrameSum += audioFrameSum;
+            this.audioFrameSum += sampleAbs;
         };
         if (this.micCheckCounter == this.micCheckDuration) {
             if (this.audioFrameSum < 0.01) {
