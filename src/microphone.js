@@ -23,20 +23,20 @@ Microphone = class Microphone {
     }
 
     _onAudioProcess(e) {
-        var nodeInput = e.inputBuffer.getChannelData(0);
-        var nodeOutput = e.outputBuffer.getChannelData(0);
+        let nodeInput = e.inputBuffer.getChannelData(0);
+        let nodeOutput = e.outputBuffer.getChannelData(0);
 
-        //check if there is any signal during the first audio frames
+        // check if there is any signal during the first audio frames
         if (this.micCheckCounter < this.micCheckDuration) {
             this.micCheck(nodeInput);
         }
 
-        //execute processAudioData function (just for the first (left) channel right now)
+        // execute processAudioData function (just for the first (left) channel right now)
         if (this.onAudioData) {
             this.onAudioData(nodeInput);
         }
 
-        //set node output
+        // set node output
         nodeOutput.set(nodeInput);
     }
 
@@ -51,9 +51,16 @@ Microphone = class Microphone {
 
     start() {
         // check for getUserMedia
-        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || navigator.msGetUserMedia;
-        if (!navigator.getUserMedia) {
-            console.warn('No microphone source was detected, please switch to another browser.');
+        const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        const hasLegacyGetUserMedia = !!(
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia
+        );
+
+        if (!hasGetUserMedia && !hasLegacyGetUserMedia) {
+            console.warn('No microphone source was detected, please update or switch to another browser.');
             try {
                 this.onNoSource();
                 return;
@@ -62,21 +69,22 @@ Microphone = class Microphone {
             }
         }
 
-        // create HTML5 Audio resource 
-        this.audioResource = new HTML5Audio(() => {
+        const HTML5AudioInput = hasGetUserMedia ? HTML5Audio : LegacyHTML5Audio;
+
+        // create HTML5 Audio resource
+        this.audioResource = new HTML5AudioInput(() => {
             this.audioResource.sourceNode.connect(this.intermediateNode);
             this.userOnSuccess();
         }, this.userOnReject, this.audioCtx);
-
     }
 
     micCheck(audioFrame) {
         this.micCheckCounter++;
-        for (var i = audioFrame.length - 1; i >= 0; i--) {
-            let sampleAbs = Math.abs(audioFrame[i]);
+        for (let i = audioFrame.length - 1; i >= 0; i--) {
+            const sampleAbs = Math.abs(audioFrame[i]);
             if (isNaN(sampleAbs)) return;
             this.audioFrameSum += sampleAbs;
-        };
+        }
         if (this.micCheckCounter == this.micCheckDuration) {
             if (this.audioFrameSum < 0.01) {
                 console.warn('No signal from microphone detected, check your operating systems audio settings.');
@@ -95,4 +103,4 @@ Microphone = class Microphone {
             this.audioResource.disable();
         }
     }
-}
+};

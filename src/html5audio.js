@@ -7,36 +7,49 @@ HTML5Audio = class HTML5Audio {
     }
 
     enable(onSuccess, onReject) {
-        navigator.getUserMedia({ audio: true }, (stream) => {
-            this.mediaStream = stream;
-            try {
-                this.sourceNode = this.audioCtx.createMediaStreamSource(stream);
-                onSuccess(stream);
-            } catch (e) {
-                console.log('Following error occured during onSuccess callback: ', e);
-            }
-        }, onReject);
+        navigator.mediaDevices
+            .getUserMedia({ audio: true })
+            .then((mediaStream) => { this.createSourceNode({ mediaStream, onSuccess }); })
+            .catch(onReject);
+    }
+
+    createSourceNode({ mediaStream, onSuccess } = {}) {
+        this.mediaStream = mediaStream;
+        try {
+            this.sourceNode = this.audioCtx.createMediaStreamSource(mediaStream);
+            onSuccess(mediaStream);
+        } catch (e) {
+            console.log('Following error occured during onSuccess callback: ', e);
+        }
     }
 
     // disable microphone entirely
     disable() {
         if (this.mediaStream) {
+            // implementation of MediaStream.stop differs from browser to browser
             if (this.mediaStream.stop) {
                 this.mediaStream.stop();
             } else {
-                let track = this.mediaStream.getAudioTracks()[0];
-                track.stop();
+                this.mediaStream
+                    .getAudioTracks()
+                    .forEach((track) => { track.stop(); });
             }
         }
     }
 
     // mutes the Audio Input
     mute() {
-        this.mediaStream.getAudioTracks()[0].enabled = false;
+        if (!this.mediaStream) return;
+        this.mediaStream
+            .getAudioTracks()
+            .forEach((track) => { track.enabled = false; });
     }
 
     // unmutes the Audio Input
     unmute() {
-        this.mediaStream.getAudioTracks()[0].enabled = true;
+        if (!this.mediaStream) return;
+        this.mediaStream
+            .getAudioTracks()
+            .forEach((track) => { track.enabled = true; });
     }
-}
+};

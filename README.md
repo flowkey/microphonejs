@@ -30,10 +30,10 @@ var microphone = new Microphone({
     onReject: function() {
         console.error("Mic access rejected");
     },
-    onNoSignal: function(){
+    onNoSignal: function() {
         console.error("No signal received so far, check your systems settings!");
     },
-    onNoSource: function(){
+    onNoSource: function() {
         console.error("No getUserMedia and no Flash available in this browser!");
     },
     onAudioData: function(audioData){
